@@ -3,9 +3,10 @@ from card import Card
 
 
 class Deck:
-    def __init__(self, decks: int = 2) -> None:
-        """Initialize a new deck of cards and shuffle."""
-        # TODO: Prauge VIP Casino uses 6 decks of 52 cards
+    def __init__(self, decks: int = 6) -> None:
+        """
+        Initialize a new deck of cards and shuffle.
+        """
         self.cards = [
             Card(i, j) for i in range(4) for j in range(13) for k in range(decks)
         ]

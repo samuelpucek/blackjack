@@ -3,9 +3,10 @@ from participant import Player, Dealer
 
 
 class Game:
+    MIN_BET = 10
     def __init__(self) -> None:
         self.dealer = Dealer()
-        self.player = Player()
+        self.player = Player(min_bet=Game.MIN_BET)
         self.deck = Deck()
         self.deck_init_length = len(self.deck)
         self.game_count = 0
@@ -46,12 +47,12 @@ class Game:
 
     def _evaluate_game(self) -> None:
         if self.player.busted():
-            print(f" >> Dealer won [losing ${self.player.bet:,.1f}]")
+            print(f" >> Dealer won [losing ${self.player.bet:,.0f}]")
 
         elif self.dealer.busted():
             prize = 2 * self.player.bet
             self.player.balance += prize
-            print(f" >> Player won [winning ${prize:,.1f}]")
+            print(f" >> Player won [winning ${prize:,.0f}]")
 
         elif self.player.hand_value() == self.dealer.hand_value(second_card_hidden=False):
             self.player.balance += self.player.bet
@@ -59,26 +60,30 @@ class Game:
 
         elif self.player.black_jack():
             prize = 2.5 * self.player.bet
-            print(f" >> Black Jack 21!!! [winning ${prize:,.1f}]")
+            print(f" >> Black Jack 21!!! [winning ${prize:,.0f}]")
             self.player.balance += prize
 
         elif self.player.hand_value() > self.dealer.hand_value(second_card_hidden=False):
             prize = 2 * self.player.bet
             self.player.balance += prize
-            print(f" >> {self.player.__class__.__name__} won! [winning ${prize:,.1f}]")
+            print(f" >> {self.player.__class__.__name__} won! [winning ${prize:,.0f}]")
 
         else:
-            print(f"Dealer won [losing ${self.player.bet:,.1f}]")
+            print(f"Dealer won [losing ${self.player.bet:,.0f}]")
 
-    def _new_game(self) -> None:
+    def _new_game(self) -> bool:
         print("------------NewGame------------")
-        self.player.make_bet()
-        self._reset_hands()
-        self._deal_the_cards()
-        self._players_turn()
-        self._dealers_turn()
-        self.dealer.print_hand_and_value(second_card_hidden=False)
-        self._evaluate_game()
+        if self.player.make_bet():
+            self._reset_hands()
+            self._deal_the_cards()
+            self._players_turn()
+            self._dealers_turn()
+            self.dealer.print_hand_and_value(second_card_hidden=False)
+            self._evaluate_game()
+            return True
+        else:
+            print("--------------End--------------")
+            return False
 
     def _deck_below_threshold(self) -> bool:
         THRESHOLD = 0.2
@@ -101,6 +106,7 @@ class Game:
     def play_game(self):
         # while self._play_new_game() and not self._deck_below_threshold():
         while not self._deck_below_threshold():
-            self._new_game()
+            if not self._new_game():
+                break
             self.game_count += 1
         self._print_summary()

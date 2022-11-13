@@ -1,6 +1,3 @@
-from card import Card
-
-
 class Participant:
     def __init__(self) -> None:
         # TODO: "Hand" will need to be separate class / object - one player can have multiple hands
@@ -15,8 +12,17 @@ class Participant:
             print(card, end=" ")
         print()
 
-    def hand_value(self, ace_as_one: bool = False) -> int:
-        return sum([card.card_value(ace_as_one) for card in self.hand])
+    def _max_hand_value(self) -> int:
+        """Maximum hand value; taking Ace as 11."""
+        return sum([card.card_value(ace_as_one=False) for card in self.hand])
+
+    def hand_value(self) -> int:
+        """True hand value; adjusted Ace value 1/11."""
+        max_hand_value = self._max_hand_value()
+        if max_hand_value > 21:
+            return sum([card.card_value(ace_as_one=True) for card in self.hand])
+        else:
+            return max_hand_value
 
     def print_hand_value(self) -> None:
         print(f"{self.__class__.__name__} value: {self.hand_value()}")
@@ -31,33 +37,29 @@ class Participant:
     def black_jack(self) -> bool:
         return self.hand_value() == 21 and len(self.hand) == 2
 
-    def ace_in_hand(self):
-        ace_in_hand = False
-        for card in self.hand:
-            if card.is_ace_card():
-                ace_in_hand = True
-        return ace_in_hand
-
-    def ace_in_hand_as_one(self) -> bool:
-        return not self.black_jack() and self.ace_in_hand()
-
 
 class Player(Participant):
-    def __init__(self, balance: int = 100) -> None:
+    def __init__(self, min_bet: int, balance: int = 100) -> None:
         self.balance = balance
         self.bet = 0
+        self.min_bet = min_bet
         super().__init__()
 
-    def make_bet(self, bet: int = 10) -> None:
+    def bankrupted(self) -> bool:
+        return self.balance < self.min_bet
+
+    def make_bet(self, bet: int = 10) -> bool:
         """Make a new bet if the player has enough balance."""
-        if self.balance >= bet:
-            print(f" >> {self.__class__.__name__} balance ${self.balance}")
+        if not self.bankrupted():
+            print(f" >> {self.__class__.__name__} balance ${self.balance:,.0f}")
             self.bet = bet
             self.balance -= self.bet
-            print(f" >> {self.__class__.__name__} bet ${self.bet}")
+            print(f" >> {self.__class__.__name__} bet ${self.bet:,.0f}")
+            return True
         else:
             print(f" >> Player bankrupted :(")
-            print(f" >> Remaining balance ${self.balance}")
+            print(f" >> Remaining balance ${self.balance:,.0f}")
+            return False
 
     def human_draw_new_card(self) -> bool:
         """Hit new card operated from the keyboard."""
