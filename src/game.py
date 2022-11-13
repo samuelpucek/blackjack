@@ -5,20 +5,20 @@ from participant import Player, Dealer
 class Game:
     def __init__(self) -> None:
         self.dealer = Dealer()
-        self.player = Player(balance=100)
+        self.player = Player()
         self.deck = Deck()
         self.deck_init_length = len(self.deck)
         # TODO: save played cards
         self.played_cards = []
 
-    def _reset_hands(self):
+    def _reset_hands(self) -> None:
         self.dealer.empty_hand()
         self.player.empty_hand()
 
     def _draw_new_card(self, who) -> None:
         who.hand += [self.deck.cards.pop()]
 
-    def _deal_the_cards(self):
+    def _deal_the_cards(self) -> None:
         self._draw_new_card(self.player)
         self._draw_new_card(self.dealer)
         self._draw_new_card(self.player)
@@ -27,7 +27,7 @@ class Game:
         self.dealer.print_hand_and_value_start()
         self.player.print_hand_and_value()
 
-    def _evaluate_game(self):
+    def _evaluate_game(self) -> None:
         if self.player.busted():
             print(f" >> Dealer won [losing ${self.player.bet:,.1f}]")
 
@@ -53,13 +53,9 @@ class Game:
         else:
             print(f"Dealer won [losing ${self.player.bet:,.1f}]")
 
-    def _new_game(self):
+    def _new_game(self) -> None:
         print("------------NewGame------------")
-        print(f" >> {self.player.__class__.__name__} balance ${self.player.balance}")
-        self.player.bet = 10
-        self.player.balance -= self.player.bet
-        print(f" >> {self.player.__class__.__name__} bet ${self.player.bet}")
-
+        self.player.make_bet()
         self._reset_hands()
         self._deal_the_cards()
 
@@ -84,13 +80,16 @@ class Game:
 
         self._evaluate_game()
 
-    def play_game(self):
-        play_new_game = True
-        deck_over_limit = False
+    def _deck_below_threshold(self) -> bool:
+        THRESHOLD = 0.3
+        deck_below_threshold = (len(self.deck) / self.deck_init_length) < THRESHOLD
+        if deck_below_threshold:
+            print(f"Deck has less than {THRESHOLD:.0%}, last game.")
 
-        while play_new_game and not deck_over_limit:
+    def _play_new_game(self) -> bool:
+        answer = input("Play new game? Press random key if exit.")
+        return len(answer) == 0
+
+    def play_game(self):
+        while self._play_new_game() and not self._deck_below_threshold():
             self._new_game()
-            play_new_game = len(input("Play game?")) == 0
-            deck_over_limit = (len(self.deck) / self.deck_init_length) < 0.25
-            if deck_over_limit:
-                print(f"{(len(self.deck) / self.deck_init_length):,.2f} deck status")

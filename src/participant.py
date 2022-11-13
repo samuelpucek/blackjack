@@ -41,16 +41,21 @@ class Participant:
         return not self.black_jack() and self.ace_in_hand()
 
 
+# TODO: "Hand" will need to be separate class / object - one player can have multiple hands
 class Player(Participant):
-    def __init__(self, balance: int) -> None:
+    def __init__(self, balance: int = 100) -> None:
         self.balance = balance
         self.bet = 0
         super().__init__()
 
-    def print_balance(self) -> None:
-        print(f"${self.balance:,}")
+    def make_bet(self, bet: int = 10) -> None:
+        print(f" >> {self.__class__.__name__} balance ${self.balance}")
+        self.bet = bet
+        self.balance -= self.bet
+        print(f" >> {self.__class__.__name__} bet ${self.bet}")
 
     def draw_new_card(self) -> bool:
+        # TOOD: this should be "Hand's" operation
         players_input = input("Next card?")
         if len(players_input) == 0:
             return True
