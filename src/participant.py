@@ -3,6 +3,7 @@ from card import Card
 
 class Participant:
     def __init__(self) -> None:
+        # TODO: "Hand" will need to be separate class / object - one player can have multiple hands
         self.hand = []
 
     def empty_hand(self) -> None:
@@ -41,7 +42,6 @@ class Participant:
         return not self.black_jack() and self.ace_in_hand()
 
 
-# TODO: "Hand" will need to be separate class / object - one player can have multiple hands
 class Player(Participant):
     def __init__(self, balance: int = 100) -> None:
         self.balance = balance
@@ -49,46 +49,47 @@ class Player(Participant):
         super().__init__()
 
     def make_bet(self, bet: int = 10) -> None:
-        print(f" >> {self.__class__.__name__} balance ${self.balance}")
-        self.bet = bet
-        self.balance -= self.bet
-        print(f" >> {self.__class__.__name__} bet ${self.bet}")
-
-    def draw_new_card(self) -> bool:
-        # TOOD: this should be "Hand's" operation
-        players_input = input("Next card?")
-        if len(players_input) == 0:
-            return True
+        """Make a new bet if the player has enough balance."""
+        if self.balance >= bet:
+            print(f" >> {self.__class__.__name__} balance ${self.balance}")
+            self.bet = bet
+            self.balance -= self.bet
+            print(f" >> {self.__class__.__name__} bet ${self.bet}")
         else:
-            return False
+            print(f" >> Player bankrupted :(")
+            print(f" >> Remaining balance ${self.balance}")
+
+    def human_draw_new_card(self) -> bool:
+        """Hit new card operated from the keyboard."""
+        # TODO: this should be "Hand's" operation
+        players_input = input("Next card?")
+        return len(players_input) == 0
+
+    def primitive_auto_draw_new_card(self) -> bool:
+        """Hit new card if hand value is less than 17."""
+        return self.hand_value() < 17
 
     # TODO: player has "Ace"
 
 
 class Dealer(Participant):
-    def print_hand_start(self) -> None:
-        print(f"{self.__class__.__name__} hand: ", end="")
-        print(self.hand[0])
-
-    def hand_value_start(self) -> int:
-        return self.hand[0].card_value()
-
-    def print_hand_value_start(self) -> None:
-        print(f"{self.__class__.__name__} value: {self.hand_value_start()}")
-
-    def print_hand_and_value_start(self) -> None:
-        self.print_hand_start()
-        self.print_hand_value_start()
-
-    def hand_value_game(self) -> int:
-        if self.black_jack():
-            return self.hand_value()
+    def print_hand(self, second_card_hidden: bool = True) -> None:
+        if second_card_hidden:
+            print(f"{self.__class__.__name__} hand: {self.hand[0]}")
         else:
-            return self.hand_value(self.ace_in_hand_as_one())
+            super().print_hand()
 
-    def print_hand_value_game(self) -> None:
-        print(f"{self.__class__.__name__} value: {self.hand_value_game()}")
+    def hand_value(self, second_card_hidden: bool = True) -> int:
+        if second_card_hidden:
+            return self.hand[0].card_value()
+        else:
+            return super().hand_value()
 
-    def print_hand_and_value_game(self) -> None:
-        self.print_hand()
-        self.print_hand_value_game()
+    def print_hand_value(self, second_card_hidden: bool = True) -> None:
+        print(
+            f"{self.__class__.__name__} value: {self.hand_value(second_card_hidden=second_card_hidden)}"
+        )
+
+    def print_hand_and_value(self, second_card_hidden: bool = True) -> None:
+        self.print_hand(second_card_hidden=second_card_hidden)
+        self.print_hand_value(second_card_hidden=second_card_hidden)

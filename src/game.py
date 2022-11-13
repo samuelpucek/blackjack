@@ -8,6 +8,7 @@ class Game:
         self.player = Player()
         self.deck = Deck()
         self.deck_init_length = len(self.deck)
+        self.game_count = 0
         # TODO: save played cards
         self.played_cards = []
 
@@ -18,13 +19,29 @@ class Game:
     def _draw_new_card(self, who) -> None:
         who.hand += [self.deck.cards.pop()]
 
+    def _dealers_turn(self) -> None:
+        if not self.player.busted():
+            while self.dealer.hand_value(second_card_hidden=False) < 17:
+                self._draw_new_card(self.dealer)
+
+    def _players_turn(self) -> None:
+        while (
+            not self.player.busted()
+            and not self.player.black_jack()
+            and self.player.hand_value() < 21
+            # and self.player.human_draw_new_card()
+            and self.player.primitive_auto_draw_new_card()
+        ):
+            self._draw_new_card(self.player)
+            self.player.print_hand_and_value()
+
     def _deal_the_cards(self) -> None:
         self._draw_new_card(self.player)
         self._draw_new_card(self.dealer)
         self._draw_new_card(self.player)
         self._draw_new_card(self.dealer)
 
-        self.dealer.print_hand_and_value_start()
+        self.dealer.print_hand_and_value(second_card_hidden=True)
         self.player.print_hand_and_value()
 
     def _evaluate_game(self) -> None:
@@ -36,7 +53,7 @@ class Game:
             self.player.balance += prize
             print(f" >> Player won [winning ${prize:,.1f}]")
 
-        elif self.player.hand_value() == self.dealer.hand_value_game():
+        elif self.player.hand_value() == self.dealer.hand_value(second_card_hidden=False):
             self.player.balance += self.player.bet
             print(" >> Even game")
 
@@ -45,7 +62,7 @@ class Game:
             print(f" >> Black Jack 21!!! [winning ${prize:,.1f}]")
             self.player.balance += prize
 
-        elif self.player.hand_value() > self.dealer.hand_value_game():
+        elif self.player.hand_value() > self.dealer.hand_value(second_card_hidden=False):
             prize = 2 * self.player.bet
             self.player.balance += prize
             print(f" >> {self.player.__class__.__name__} won! [winning ${prize:,.1f}]")
@@ -58,38 +75,32 @@ class Game:
         self.player.make_bet()
         self._reset_hands()
         self._deal_the_cards()
-
-        while (
-            not self.player.busted()
-            and not self.player.black_jack()
-            and self.player.hand_value() < 21
-            and self.player.draw_new_card()
-        ):
-            self._draw_new_card(self.player)
-            self.player.print_hand_and_value()
-
-        # self.dealer.print_hand_and_value()
-        self.dealer.print_hand_and_value_game()
-
-        if not self.player.busted():
-
-            while self.dealer.hand_value_game() < 17:
-                self._draw_new_card(self.dealer)
-
-            self.dealer.print_hand_and_value_game()
-
+        self._players_turn()
+        self._dealers_turn()
+        self.dealer.print_hand_and_value(second_card_hidden=False)
         self._evaluate_game()
 
     def _deck_below_threshold(self) -> bool:
-        THRESHOLD = 0.3
+        THRESHOLD = 0.2
         deck_below_threshold = (len(self.deck) / self.deck_init_length) < THRESHOLD
         if deck_below_threshold:
             print(f"Deck has less than {THRESHOLD:.0%}, last game.")
+            return True
+        else:
+            return False
 
     def _play_new_game(self) -> bool:
         answer = input("Play new game? Press random key if exit.")
         return len(answer) == 0
 
+    def _print_summary(self) -> None:
+        print("------------Summary------------")
+        print(f"Games : {self.game_count}")
+        print(f"Player balance : ${self.player.balance:,.0f}")
+
     def play_game(self):
-        while self._play_new_game() and not self._deck_below_threshold():
+        # while self._play_new_game() and not self._deck_below_threshold():
+        while not self._deck_below_threshold():
             self._new_game()
+            self.game_count += 1
+        self._print_summary()

@@ -4,20 +4,23 @@ from card import Card
 
 class Deck:
     def __init__(self, decks: int = 2) -> None:
-        """Initialize new deck and shuffle"""
+        """Initialize a new deck of cards and shuffle."""
+        # TODO: Prauge VIP Casino uses 6 decks of 52 cards
         self.cards = [
             Card(i, j) for i in range(4) for j in range(13) for k in range(decks)
         ]
         self._shuffle()
 
     def __len__(self) -> int:
+        """Return size of the deck."""
         return len(self.cards)
 
     def _shuffle(self) -> None:
-        """Shuffle the deck"""
+        """Shuffle the deck."""
         random.shuffle(self.cards)
 
     def __str__(self) -> str:
+        """Print the deck."""
         deck_written = ""
         for card in self.cards:
             deck_written += card.__str__() + " "

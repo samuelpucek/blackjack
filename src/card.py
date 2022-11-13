@@ -8,10 +8,12 @@ class Card:
         self.rank = rank
 
     def __str__(self) -> str:
+        """Print the card in a nice way."""
         return f"{Card.SUITS[self.suit]}{Card.RANKS[self.rank]}"
 
     def card_value(self, ace_as_one: bool = False) -> int:
         # TODO: fix "A"
+        # Ace is counted as 11, only if the hand value exceeds 21 Ace is counted as 1
         if ace_as_one and self.rank == 12:
             return 1
         else:
