@@ -18,6 +18,8 @@ class Game:
         self.player.empty_hand()
 
     def _draw_new_card(self, who) -> None:
+        # TODO: this is a bit weird that the "game" pushed player/dealer cards into the hand
+        # IMHO the "hand" manipulation should be covered with internal nethod (in Participant)
         who.hand += [self.deck.cards.pop()]
 
     def _dealers_turn(self) -> None:
@@ -104,7 +106,6 @@ class Game:
         print(f"Player balance : ${self.player.balance:,.0f}")
 
     def play_game(self):
-        # while self._play_new_game() and not self._deck_below_threshold():
         while not self._deck_below_threshold():
             if not self._new_game():
                 break

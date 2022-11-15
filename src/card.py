@@ -11,13 +11,13 @@ class Card:
         """Print the card in a nice way."""
         return f"{Card.SUITS[self.suit]}{Card.RANKS[self.rank]}"
 
-    def _is_ace_card(self) -> bool:
+    def is_ace_card(self) -> bool:
         """Return if the card is Ace card."""
         return self.rank == 12
 
     def card_value(self, ace_as_one: bool = False) -> int:
         """Return value of the card with special care for Ace value 1/11."""
-        if self._is_ace_card() and ace_as_one:
+        if self.is_ace_card() and ace_as_one:
             return 1
         else:
             return Card.VALUES[self.rank]

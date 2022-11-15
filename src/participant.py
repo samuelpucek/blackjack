@@ -12,17 +12,32 @@ class Participant:
             print(card, end=" ")
         print()
 
-    def _max_hand_value(self) -> int:
-        """Maximum hand value; taking Ace as 11."""
-        return sum([card.card_value(ace_as_one=False) for card in self.hand])
-
     def hand_value(self) -> int:
-        """True hand value; adjusted Ace value 1/11."""
-        max_hand_value = self._max_hand_value()
-        if max_hand_value > 21:
-            return sum([card.card_value(ace_as_one=True) for card in self.hand])
-        else:
-            return max_hand_value
+        """
+        Return total hand value, no matter what the value is.
+        It takes into account soft/hard hand and 21 logic.
+        Example of a hand: 2 A 3 A 9 K
+        """
+        soft_hand = False
+        hand_value = 0
+        for card in self.hand:
+            if soft_hand:
+                card_value = card.card_value(ace_as_one=True)
+                if hand_value + card_value <= 21:
+                    hand_value += card_value
+                else:
+                    hand_value += card_value - 10
+                    soft_hand = False
+            else:
+                if card.is_ace_card():
+                    if hand_value + 11 <= 21:
+                        hand_value += 11
+                        soft_hand = True
+                    else:
+                        hand_value += 1
+                else:
+                    hand_value += card.card_value()
+        return hand_value
 
     def print_hand_value(self) -> None:
         print(f"{self.__class__.__name__} value: {self.hand_value()}")
@@ -70,8 +85,6 @@ class Player(Participant):
     def primitive_auto_draw_new_card(self) -> bool:
         """Hit new card if hand value is less than 17."""
         return self.hand_value() < 17
-
-    # TODO: player has "Ace"
 
 
 class Dealer(Participant):
