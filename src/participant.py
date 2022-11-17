@@ -54,7 +54,8 @@ class Participant:
 
 
 class Player(Participant):
-    def __init__(self, min_bet: int, balance: int = 100) -> None:
+    def __init__(self, min_bet: int = 10, balance: int = 100) -> None:
+        # TODO: It's weird why `min_bet` is Player's business
         self.balance = balance
         self.bet = 0
         self.min_bet = min_bet
@@ -86,6 +87,14 @@ class Player(Participant):
         """Hit new card if hand value is less than 17."""
         return self.hand_value() < 17
 
+    def hand_of_pairs(self) -> bool:
+        """Check if the player has hand of pairs e.g., 5s."""
+        if len(self.hand) == 2:
+            card_0 = self.hand[0]
+            card_1 = self.hand[1]
+            return card_0.rank == card_1.rank
+        else:
+            return False
 
 class Dealer(Participant):
     def print_hand(self, second_card_hidden: bool = True) -> None:
@@ -94,7 +103,7 @@ class Dealer(Participant):
         else:
             super().print_hand()
 
-    def hand_value(self, second_card_hidden: bool = True) -> int:
+    def hand_value(self, second_card_hidden: bool = False) -> int:
         if second_card_hidden:
             return self.hand[0].card_value()
         else:
@@ -108,3 +117,6 @@ class Dealer(Participant):
     def print_hand_and_value(self, second_card_hidden: bool = True) -> None:
         self.print_hand(second_card_hidden=second_card_hidden)
         self.print_hand_value(second_card_hidden=second_card_hidden)
+
+    def first_card_ace(self) -> bool:
+        return self.hand[0].rank == 12
