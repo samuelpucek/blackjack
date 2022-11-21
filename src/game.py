@@ -21,34 +21,6 @@ class Game:
     def _draw_new_card_from_deck(self, who: Participant, which_hand: int) -> None:
         who.hands[which_hand].cards += [self.deck.cards.pop()]
 
-    def _dealers_turn(self) -> None:
-        all_hands_busted = True
-        for players_hand in self.player.hands:
-            all_hands_busted = min(all_hands_busted, players_hand.busted())
-
-        if not all_hands_busted:
-            while self.dealer.hand_value(second_card_hidden=False) < 17:
-                self._draw_new_card_from_deck(who=self.dealer, which_hand=0)
-
-    def _players_turn(self, which_hand: int) -> None:
-        # double down
-        if self._double_down(which_hand):
-            self.player.print_hand_and_value(which_hand)
-            return None  # exit
-
-        # split the pairs
-        self._split_paris(which_hand)
-
-        # standard turn
-        while (
-            not self.player.busted_hand(which_hand)
-            and not self.player.black_jack(which_hand)
-            and self.player.hand_value(which_hand) < 21
-            and self.player.draw_new_card(mode="auto primitive", which_hand=which_hand)
-        ):
-            self._draw_new_card_from_deck(self.player, which_hand)
-            self.player.print_hand_and_value(which_hand)
-
     def _deal_the_cards(self) -> None:
         """Deal the cards at the beginning of the round."""
         self._draw_new_card_from_deck(who=self.player, which_hand=0)
@@ -110,13 +82,41 @@ class Game:
         else:
             return False
 
-    def _split_paris(self, which_hand: int) -> None:
+    def _split_pairs(self, which_hand: int) -> None:
         if self.player.hand_of_pairs(which_hand=which_hand):
             print(" >> Split the cards?")
 
     def _insurance(self) -> None:
         if self.dealer.first_card_ace():
             print(" >> Insurance anyone?")
+
+    def _players_turn(self, which_hand: int) -> None:
+        # double down
+        if self._double_down(which_hand):
+            self.player.print_hand_and_value(which_hand)
+            return None  # exit
+
+        # split the pairs
+        self._split_pairs(which_hand)
+
+        # standard turn
+        while (
+            not self.player.busted_hand(which_hand)
+            and not self.player.black_jack(which_hand)
+            and self.player.hand_value(which_hand) < 21
+            and self.player.draw_new_card(mode="auto primitive", which_hand=which_hand)
+        ):
+            self._draw_new_card_from_deck(self.player, which_hand)
+            self.player.print_hand_and_value(which_hand)
+
+    def _dealers_turn(self) -> None:
+        all_hands_busted = True
+        for players_hand in self.player.hands:
+            all_hands_busted = min(all_hands_busted, players_hand.busted())
+
+        if not all_hands_busted:
+            while self.dealer.hand_value(second_card_hidden=False) < 17:
+                self._draw_new_card_from_deck(who=self.dealer, which_hand=0)
 
     def _new_game(self) -> bool:
         print("------------NewGame------------")
