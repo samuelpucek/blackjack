@@ -1,72 +1,55 @@
+from hand import Hand
+
+
 class Participant:
     def __init__(self) -> None:
-        # TODO: "Hand" will need to be separate class / object - one player can have multiple hands
-        self.hand = []
+        """One Participant can have one or multiple hands."""
+        self.hands: list(Hand) = []
 
-    def empty_hand(self) -> None:
-        self.hand = []
+    def new_hand(self) -> None:
+        pass
 
-    def print_hand(self) -> None:
-        print(f"{self.__class__.__name__} hand: ", end="")
-        for card in self.hand:
-            print(card, end=" ")
-        print()
+    def print_hand(self, which_hand: int) -> None:
+        """Print given Participants hand."""
+        print(f"{self.__class__.__name__}'s {which_hand} hand: ", end="")
+        self.hands[which_hand].print_hand()
 
-    def hand_value(self) -> int:
-        """
-        Return total hand value, no matter what the value is.
-        It takes into account soft/hard hand and 21 logic.
-        Example of a hand: 2 A 3 A 9 K
-        """
-        soft_hand = False
-        hand_value = 0
-        for card in self.hand:
-            if soft_hand:
-                card_value = card.card_value(ace_as_one=True)
-                if hand_value + card_value <= 21:
-                    hand_value += card_value
-                else:
-                    hand_value += card_value - 10
-                    soft_hand = False
-            else:
-                if card.is_ace_card():
-                    if hand_value + 11 <= 21:
-                        hand_value += 11
-                        soft_hand = True
-                    else:
-                        hand_value += 1
-                else:
-                    hand_value += card.card_value()
-        return hand_value
+    def hand_value(self, which_hand: int) -> int:
+        """Return total value given Participants hand"""
+        return self.hands[which_hand].hand_value()
 
-    def print_hand_value(self) -> None:
-        print(f"{self.__class__.__name__} value: {self.hand_value()}")
+    def print_hand_value(self, which_hand: int) -> None:
+        print(
+            f"{self.__class__.__name__}'s {which_hand} hand value: {self.hand_value(which_hand)}"
+        )
 
-    def print_hand_and_value(self) -> None:
-        self.print_hand()
-        self.print_hand_value()
+    def print_hand_and_value(self, which_hand: int) -> None:
+        self.print_hand(which_hand)
+        self.print_hand_value(which_hand)
 
-    def busted(self) -> bool:
-        return self.hand_value() > 21
+    def busted_hand(self, which_hand: int) -> bool:
+        return self.hands[which_hand].busted()
 
-    def black_jack(self) -> bool:
-        return self.hand_value() == 21 and len(self.hand) == 2
+    def black_jack(self, which_hand: int) -> bool:
+        return self.hands[which_hand].black_jack()
 
 
 class Player(Participant):
-    def __init__(self, min_bet: int = 10, balance: int = 100) -> None:
-        # TODO: It's weird why `min_bet` is Player's business
+    def __init__(self, balance: int, min_bet: int) -> None:
+        self.hands: list(Hand) = []
         self.balance = balance
         self.bet = 0
         self.min_bet = min_bet
-        super().__init__()
 
-    def bankrupted(self) -> bool:
+    def new_hand(self) -> None:
+        self.hands = [Hand(cards=[])]
+
+    def _bankrupted(self) -> bool:
         return self.balance < self.min_bet
 
-    def make_bet(self, bet: int = 10) -> bool:
+    def make_bet(self, bet: int) -> bool:
         """Make a new bet if the player has enough balance."""
-        if not self.bankrupted():
+        if not self._bankrupted():
             print(f" >> {self.__class__.__name__} balance ${self.balance:,.0f}")
             self.bet = bet
             self.balance -= self.bet
@@ -77,41 +60,41 @@ class Player(Participant):
             print(f" >> Remaining balance ${self.balance:,.0f}")
             return False
 
-    def human_draw_new_card(self) -> bool:
-        """Hit new card operated from the keyboard."""
-        # TODO: this should be "Hand's" operation
-        players_input = input("Next card?")
-        return len(players_input) == 0
-
-    def primitive_auto_draw_new_card(self) -> bool:
-        """Hit new card if hand value is less than 17."""
-        return self.hand_value() < 17
-
-    def hand_of_pairs(self) -> bool:
-        """Check if the player has hand of pairs e.g., 5s."""
-        if len(self.hand) == 2:
-            card_0 = self.hand[0]
-            card_1 = self.hand[1]
-            return card_0.rank == card_1.rank
+    def draw_new_card(self, mode: str, which_hand: int) -> bool:
+        if mode == "auto primitive":
+            return self.hands[which_hand].hand_value() < 17
+        elif mode == "human":
+            players_input = input("Next card?")
+            return len(players_input) == 0
         else:
-            return False
+            raise ValueError("Not supported draw new card opperation.")
+
+    def hand_of_pairs(self, which_hand: int) -> bool:
+        return self.hands[which_hand].hand_of_pairs()
+
 
 class Dealer(Participant):
+    def __init__(self) -> None:
+        self.hands: list(Hand) = []
+
+    def new_hand(self) -> None:
+        self.hands = [Hand(cards=[])]
+
     def print_hand(self, second_card_hidden: bool = True) -> None:
         if second_card_hidden:
-            print(f"{self.__class__.__name__} hand: {self.hand[0]}")
+            print(f"{self.__class__.__name__}'s 0 hand: {self.hands[0].cards[0]}")
         else:
-            super().print_hand()
+            super().print_hand(0)
 
-    def hand_value(self, second_card_hidden: bool = False) -> int:
+    def hand_value(self, second_card_hidden: bool = True) -> int:
         if second_card_hidden:
-            return self.hand[0].card_value()
+            return self.hands[0].cards[0].card_value()
         else:
-            return super().hand_value()
+            return super().hand_value(which_hand=0)
 
     def print_hand_value(self, second_card_hidden: bool = True) -> None:
         print(
-            f"{self.__class__.__name__} value: {self.hand_value(second_card_hidden=second_card_hidden)}"
+            f"{self.__class__.__name__}'s 0 hand value: {self.hand_value(second_card_hidden=second_card_hidden)}"
         )
 
     def print_hand_and_value(self, second_card_hidden: bool = True) -> None:
@@ -119,4 +102,8 @@ class Dealer(Participant):
         self.print_hand_value(second_card_hidden=second_card_hidden)
 
     def first_card_ace(self) -> bool:
-        return self.hand[0].rank == 12
+        first_dealer_card = self.hands[0].cards[0]
+        return first_dealer_card.rank == 12
+
+    def busted_hand(self) -> bool:
+        return super().busted_hand(0)
