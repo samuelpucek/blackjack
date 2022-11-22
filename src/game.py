@@ -12,8 +12,7 @@ class Game:
         self.deck = Deck(decks=6)
         self.deck_init_length = len(self.deck)
         self.game_count = 0
-        # TODO: save played cards
-        self.played_cards = []
+        self.already_played_cards = []  # TODO: save played cards
 
     def _reset_hands(self) -> None:
         self.dealer.new_hand()
@@ -69,10 +68,6 @@ class Game:
             print(" >> Dealer higher cards")
             print(f"Dealer won [losing ${player.bet:,.0f}]")
 
-    def _surrender(self) -> None:
-        # print(" >> Anyone surrender?")
-        pass
-
     def _double_down(self, hand: Hand) -> bool:
         if (
             self.player.balance > self.player.bet
@@ -104,10 +99,6 @@ class Game:
         else:
             print(" >> Not enought balance for split")
             return False
-
-    def _insurance(self) -> None:
-        if self.dealer.first_card_ace():
-            print(" >> Insurance anyone?")
 
     def _players_turn(self, player: Player) -> None:
         while player.hands:
@@ -153,9 +144,6 @@ class Game:
         if self.player.make_bet(bet=Game.MIN_BET):
             self._reset_hands()
             self._deal_the_cards()
-
-            self._surrender()
-            self._insurance()
 
             self._players_turn(player=self.player)
             self._dealers_turn()

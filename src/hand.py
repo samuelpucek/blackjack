@@ -6,11 +6,6 @@ class Hand:
         # self.cards: list(Card) = cards
         self.cards = cards
 
-    def print_hand(self) -> None:
-        for card in self.cards:
-            print(card, end=" ")
-        print()
-
     def hand_value(self) -> int:
         """
         Return total hand value, no matter what the value is.
@@ -50,6 +45,11 @@ class Hand:
             return self.cards[0].rank == self.cards[1].rank
         else:
             return False
+
+    def print_hand(self) -> None:
+        for card in self.cards:
+            print(card, end=" ")
+        print()
 
     def print_hand_and_hand_value(self, msg: str) -> None:
         print(f"{msg}: ", end="")
