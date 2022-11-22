@@ -1,8 +1,7 @@
 import unittest
 from parameterized import parameterized
 
-from src.card import Card
-from src.hand import Hand
+from src.utils import Card, Hand
 
 
 class TestHand(unittest.TestCase):

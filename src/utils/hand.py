@@ -1,10 +1,9 @@
-# from card import Card
+from .card import Card
 
 
 class Hand:
     def __init__(self, cards: list) -> None:
-        # self.cards: list(Card) = cards
-        self.cards = cards
+        self.cards: list(Card) = cards
 
     def hand_value(self) -> int:
         """
