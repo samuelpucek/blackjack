@@ -45,8 +45,13 @@ class Hand:
         return self.hand_value() == 21 and len(self.cards) == 2
 
     def hand_of_pairs(self) -> bool:
-        """Check if the player has hand of pairs e.g., 5s."""
+        """Check if the player has a hand of pairs e.g., 5s."""
         if len(self.cards) == 2:
             return self.cards[0].rank == self.cards[1].rank
         else:
             return False
+
+    def print_hand_and_hand_value(self, msg: str) -> None:
+        print(f"{msg}: ", end="")
+        self.print_hand()
+        print(f"{msg} value: {self.hand_value()}")

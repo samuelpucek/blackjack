@@ -24,7 +24,11 @@ class TestHand(unittest.TestCase):
             ("2", [Card(0, 0)], 2),
             ("2 A", [Card(0, 0), Card(0, 12)], 13),
             ("2 A 3", [Card(0, 0), Card(0, 12), Card(0, 1)], 16),
-            ("2 A 3 A", [Card(0, 0), Card(0, 12), Card(0, 1), Card(1, 12)], 17),
+            (
+                "2 A 3 A",
+                [Card(0, 0), Card(0, 12), Card(0, 1), Card(1, 12)],
+                17,
+            ),
             (
                 "2 A 3 A 9",
                 [Card(0, 0), Card(0, 12), Card(0, 1), Card(1, 12), Card(1, 7)],
@@ -53,7 +57,11 @@ class TestHand(unittest.TestCase):
             ("2", [Card(0, 0)], False),
             ("2 A", [Card(0, 0), Card(0, 12)], False),
             ("2 A 3", [Card(0, 0), Card(0, 12), Card(0, 1)], False),
-            ("2 A 3 A", [Card(0, 0), Card(0, 12), Card(0, 1), Card(1, 12)], False),
+            (
+                "2 A 3 A",
+                [Card(0, 0), Card(0, 12), Card(0, 1), Card(1, 12)],
+                False,
+            ),
             (
                 "2 A 3 A 9",
                 [Card(0, 0), Card(0, 12), Card(0, 1), Card(1, 12), Card(1, 7)],

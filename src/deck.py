@@ -3,12 +3,18 @@ from card import Card
 
 
 class Deck:
-    def __init__(self, decks: int = 6) -> None:
+    def __init__(self, decks: int) -> None:
         """
         Initialize a new deck of cards and shuffle.
         """
+        self._suits = 4
+        self._ranks = 13
+        self._decks = decks
         self.cards = [
-            Card(i, j) for i in range(4) for j in range(13) for k in range(decks)
+            Card(i, j)
+            for i in range(self._suits)
+            for j in range(self._ranks)
+            for k in range(self._decks)
         ]
         self._shuffle()
 
