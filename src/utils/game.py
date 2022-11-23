@@ -1,5 +1,6 @@
-from .hand import Hand
+from .card import Card
 from .deck import Deck
+from .hand import Hand
 from .participant import Player, Dealer
 
 
@@ -12,7 +13,7 @@ class Game:
         self.deck = Deck(decks=6)
         self.deck_init_length = len(self.deck)
         self.game_count = 0
-        self.already_played_cards = []  # TODO: save played cards
+        self.already_played_cards: list(Card) = []  # TODO: save played cards
 
     def _reset_hands(self) -> None:
         self.dealer.new_hand()

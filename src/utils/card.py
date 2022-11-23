@@ -4,19 +4,28 @@ class Card:
     VALUES = [2, 3, 4, 5, 6, 7, 8, 9, 10, 10, 10, 10, 11]
 
     def __init__(self, suit, rank) -> None:
+        """
+        Initialize a new playing card.
+        """
         self.suit = suit
         self.rank = rank
 
     def __str__(self) -> str:
-        """Print the card in a nice way."""
+        """
+        Print the card in a nice way.
+        """
         return f"{Card.SUITS[self.suit]}{Card.RANKS[self.rank]}"
 
     def is_ace_card(self) -> bool:
-        """Return if the card is Ace card."""
+        """
+        Return if the card is Ace card.
+        """
         return self.rank == 12
 
     def card_value(self, ace_as_one: bool = False) -> int:
-        """Return value of the card with special care for Ace value 1/11."""
+        """
+        Return value of the card with special care for Ace value 1/11.
+        """
         if self.is_ace_card() and ace_as_one:
             return 1
         else:
