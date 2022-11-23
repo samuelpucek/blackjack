@@ -8,49 +8,59 @@ class Hand:
         """
         self.cards: list(Card) = cards
 
-    def __str__(self) -> str:
+    def __str__(self, second_card_hidden: bool = False) -> str:
         """
         Print the hand.
         """
-        hand_written = ""
-        for card in self.cards:
-            hand_written += card.__str__() + " "
-        return hand_written.strip()
+        if second_card_hidden:
+            return f"{self.cards[0].__str__()} XX"
+        else:
+            hand_written = ""
+            for card in self.cards:
+                hand_written += card.__str__() + " "
+            return hand_written.strip()
 
-    def print_hand_and_hand_value(self, msg: str) -> None:
-        """
-        Print both the hand and the hand value in a nice way.
-        """
-        print(f"{msg}: {self.__str__()} [{self.hand_value()}]")
-
-    def hand_value(self) -> int:
+    def hand_value(self, second_card_hidden: bool = False) -> int:
         """
         Return total hand value, no matter what the value is.
         It takes into account soft/hard hand and 21 logic.
 
         Hand example: 2 A 3 A 9 K
         """
-        soft_hand = False
-        hand_value = 0
+        if second_card_hidden:
+            return self.cards[0].card_value()
+        else:
+            soft_hand: bool = False
+            hand_value: int = 0
 
-        for card in self.cards:
-            if soft_hand:
-                card_value = card.card_value(ace_as_one=True)
-                if hand_value + card_value <= 21:
-                    hand_value += card_value
-                else:
-                    hand_value += card_value - 10
-                    soft_hand = False
-            else:
-                if card.is_ace_card():
-                    if hand_value + 11 <= 21:
-                        hand_value += 11
-                        soft_hand = True
+            for card in self.cards:
+                if soft_hand:
+                    card_value = card.card_value(ace_as_one=True)
+                    if hand_value + card_value <= 21:
+                        hand_value += card_value
                     else:
-                        hand_value += 1
+                        hand_value += card_value - 10
+                        soft_hand = False
                 else:
-                    hand_value += card.card_value()
-        return hand_value
+                    if card.is_ace_card():
+                        if hand_value + 11 <= 21:
+                            hand_value += 11
+                            soft_hand = True
+                        else:
+                            hand_value += 1
+                    else:
+                        hand_value += card.card_value()
+            return hand_value
+
+    def print_hand_and_hand_value(
+        self, msg: str, second_card_hidden: bool = False
+    ) -> None:
+        """
+        Print both the hand and the hand value in a nice way.
+        """
+        cards = self.__str__(second_card_hidden)
+        value = self.hand_value(second_card_hidden)
+        print(f"{msg}: {cards} [{value}]")
 
     def busted(self) -> bool:
         """
