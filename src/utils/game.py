@@ -21,6 +21,7 @@ class Game:
         self.dealer.new_hand()
         self.player.new_hand()
         self.player.reset_played_hands()
+        self.player.split_count = 0
 
     def _draw_new_card_from_deck(self, hand: Hand) -> None:
         hand.cards.append(self.deck.cards.pop())
@@ -61,7 +62,9 @@ class Game:
             player.balance += player.bet
             print(" >> Even game")
 
-        elif players_hand.black_jack():
+        elif (
+            players_hand.black_jack() and not players_hand.black_jack_dislabled
+        ):
             prize = 2.5 * player.bet
             print(f" >> Black Jack 21!!! [winning ${prize:,.0f}]")
             player.balance += prize
@@ -76,7 +79,7 @@ class Game:
 
         else:
             print(" >> Dealer higher cards")
-            print(f"Dealer won [losing ${player.bet:,.0f}]")
+            print(f" >> Dealer won [losing ${player.bet:,.0f}]")
 
     def _double_down(self, hand: Hand) -> bool:
         dealers_hand: Hand = self.dealer.hands[0]
@@ -94,8 +97,10 @@ class Game:
             return False
 
     def _split_pairs(self, player: Player, hand: Hand) -> bool:
-        if player.make_bet(bet=Game.MIN_BET):
+        if player.balance > player.bet and player.split_count < 3:
+            player.make_bet(bet=player.bet)
             print(" >> Split the cards")
+
             left_hand = Hand(cards=[hand.cards[0]])
             self._draw_new_card_from_deck(hand=left_hand)
             left_hand.print_hand_and_hand_value(msg="Player's left hand")
@@ -104,11 +109,24 @@ class Game:
             self._draw_new_card_from_deck(hand=right_hand)
             right_hand.print_hand_and_hand_value(msg="Player's right hand")
 
-            player.hands = [right_hand, left_hand] + player.hands
+            # Black Jack in the Split is counted as 21, not as BJ
+            for new_hand in [left_hand, right_hand]:
+                if new_hand.black_jack():
+                    new_hand.black_jack_dislabled = True
 
+            # Aces can be split only once
+            if hand.hand_of_double_aces():
+                player.played_hands = [
+                    right_hand,
+                    left_hand,
+                ] + player.played_hands
+            else:
+                player.hands = [right_hand, left_hand] + player.hands
+                player.split_count += 1
             return True
         else:
             print(" >> Not enought balance for split")
+            print(" >> Max split count 3 times per hand")
             return False
 
     def _players_turn(self, player: Player) -> None:
@@ -130,11 +148,8 @@ class Game:
                 continue  # exit
 
             # standard hand
-            while (
-                not hand.busted()
-                and not hand.black_jack()
-                and hand.hand_value() < 21
-                and player.draw_new_card(mode="auto primitive", hand=hand)
+            while hand.hand_value() < 21 and player.draw_new_card(
+                mode="auto primitive", hand=hand
             ):
                 self._draw_new_card_from_deck(hand)
                 hand.print_hand_and_hand_value(msg=f"{player.name}")
@@ -195,8 +210,10 @@ class Game:
         print(f"Player balance : ${self.player.balance:,.0f}")
 
     def play_game(self):
-        while not self._deck_below_threshold():
-            if not self._new_game():
-                break
-            self.game_count += 1
-        self._print_summary()
+        while True and self.player.balance > self.MIN_BET:
+            while not self._deck_below_threshold():
+                if not self._new_game():
+                    break
+                self.game_count += 1
+            self._print_summary()
+            self.deck = Deck(decks=6)

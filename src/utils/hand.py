@@ -7,6 +7,7 @@ class Hand:
         Initialize a new hand of cards.
         """
         self.cards: list(Card) = cards
+        self.black_jack_dislabled = False
 
     def __str__(self, second_card_hidden: bool = False) -> str:
         """
@@ -80,5 +81,14 @@ class Hand:
         """
         if len(self.cards) == 2:
             return self.cards[0].rank == self.cards[1].rank
+        else:
+            return False
+
+    def hand_of_double_aces(self) -> bool:
+        """
+        Check if the hand is a hand of double aces or not i.e., A A.
+        """
+        if len(self.cards) == 2:
+            return self.cards[0].rank == self.cards[1].rank == 12
         else:
             return False

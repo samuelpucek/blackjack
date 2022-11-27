@@ -18,6 +18,7 @@ class Player(Participant):
         self.balance = balance
         self.bet = 0
         self.min_bet = min_bet
+        self.split_count = 0
 
     def reset_played_hands(self) -> None:
         self.played_hands = []
