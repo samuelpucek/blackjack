@@ -3,11 +3,16 @@ from .hand import Hand
 
 class Participant:
     def __init__(self, name: str) -> None:
-        """One Participant can have one or multiple hands."""
+        """
+        One Participant can have one or multiple hands.
+        """
         self.name = name
         self.hands: list(Hand) = []
 
     def new_hand(self) -> None:
+        """
+        Initialize a new hand.
+        """
         self.hands = [Hand(cards=[])]
 
 
@@ -19,15 +24,26 @@ class Player(Participant):
         self.bet = 0
         self.min_bet = min_bet
         self.split_count = 0
+        self.won_hands = 0
+        self.lost_hands = 0
+        self.even_hands = 0
 
     def reset_played_hands(self) -> None:
+        """
+        Reset played hands.
+        """
         self.played_hands = []
 
     def _bankrupted(self) -> bool:
+        """
+        Check if the player is bankrupted or not.
+        """
         return self.balance < self.min_bet
 
     def make_bet(self, bet: int) -> bool:
-        """Make a new bet if the player has enough balance."""
+        """
+        Make a new bet if the player has enough balance.
+        """
         if not self._bankrupted():
             print(
                 f" >> {self.__class__.__name__} balance ${self.balance:,.0f}"
@@ -42,6 +58,9 @@ class Player(Participant):
             return False
 
     def draw_new_card(self, mode: str, hand: Hand) -> bool:
+        """
+        Return if the player should draw a new card or not.
+        """
         if mode == "auto primitive":
             return hand.hand_value() < 17
         elif mode == "human":

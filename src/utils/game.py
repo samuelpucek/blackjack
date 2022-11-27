@@ -6,14 +6,14 @@ from .participant import Player, Dealer
 
 class Game:
     MIN_BET = 10
+    DECKS = 6
 
     def __init__(self) -> None:
         self.dealer = Dealer("Dealer D")
         self.player = Player(
-            name="Player 1", balance=100, min_bet=Game.MIN_BET
+            name="Player 1", balance=10000, min_bet=self.MIN_BET
         )
-        self.deck = Deck(decks=6)
-        self.deck_init_length = len(self.deck)
+        self.deck = Deck(decks=self.DECKS)
         self.game_count = 0
         self.already_played_cards: list(Card) = []  # TODO: save played cards
 
@@ -33,10 +33,9 @@ class Game:
         players_hand: Hand = self.player.hands[0]
         dealers_hand: Hand = self.dealer.hands[0]
 
-        self._draw_new_card_from_deck(hand=players_hand)
-        self._draw_new_card_from_deck(hand=dealers_hand)
-        self._draw_new_card_from_deck(hand=players_hand)
-        self._draw_new_card_from_deck(hand=dealers_hand)
+        for _ in range(2):
+            for hand in [players_hand, dealers_hand]:
+                self._draw_new_card_from_deck(hand)
 
         print(" >> Deal the cards")
         dealers_hand.print_hand_and_hand_value(
@@ -51,23 +50,27 @@ class Game:
         if players_hand.busted():
             print(" >> Player busted")
             print(f" >> Dealer won [losing ${player.bet:,.0f}]")
+            player.lost_hands += 1
 
         elif dealers_hand.busted():
             prize = 2 * player.bet
             player.balance += prize
             print(" >> Dealer busted")
             print(f" >> Player won [winning ${prize:,.0f}]")
+            player.won_hands += 1
 
         elif players_hand.hand_value() == dealers_hand.hand_value():
             player.balance += player.bet
             print(" >> Even game")
+            player.even_hands += 1
 
         elif (
             players_hand.black_jack() and not players_hand.black_jack_dislabled
         ):
             prize = 2.5 * player.bet
-            print(f" >> Black Jack 21!!! [winning ${prize:,.0f}]")
             player.balance += prize
+            print(f" >> Black Jack 21!!! [winning ${prize:,.0f}]")
+            player.won_hands += 1
 
         elif players_hand.hand_value() > dealers_hand.hand_value():
             prize = 2 * player.bet
@@ -76,10 +79,12 @@ class Game:
             print(
                 f" >> {player.__class__.__name__} won! [winning ${prize:,.0f}]"
             )
+            player.won_hands += 1
 
         else:
             print(" >> Dealer higher cards")
             print(f" >> Dealer won [losing ${player.bet:,.0f}]")
+            player.lost_hands += 1
 
     def _double_down(self, hand: Hand) -> bool:
         dealers_hand: Hand = self.dealer.hands[0]
@@ -159,7 +164,9 @@ class Game:
     def _dealers_turn(self) -> None:
         all_hands_busted = True
         for players_hand in self.player.played_hands:
-            all_hands_busted = min(all_hands_busted, players_hand.busted())
+            if not players_hand.busted():
+                all_hands_busted = False
+                break
 
         if not all_hands_busted:
             dealers_hand: Hand = self.dealer.hands[0]
@@ -191,8 +198,9 @@ class Game:
 
     def _deck_below_threshold(self) -> bool:
         THRESHOLD = 0.2
+        init_deck_cards_count = self.DECKS * 52
         deck_below_threshold = (
-            len(self.deck) / self.deck_init_length
+            len(self.deck) / init_deck_cards_count
         ) < THRESHOLD
         if deck_below_threshold:
             print(f"Deck has less than {THRESHOLD:.0%}, last game.")
@@ -205,15 +213,35 @@ class Game:
         return len(answer) == 0
 
     def _print_summary(self) -> None:
+        print("-------------------------------")
         print("------------Summary------------")
+        print("-------------------------------")
         print(f"Games : {self.game_count}")
         print(f"Player balance : ${self.player.balance:,.0f}")
+        print("-------------------------------")
 
     def play_game(self):
-        while True and self.player.balance > self.MIN_BET:
+        while self.player.balance > self.MIN_BET and self.game_count < 1000:
             while not self._deck_below_threshold():
                 if not self._new_game():
                     break
                 self.game_count += 1
             self._print_summary()
             self.deck = Deck(decks=6)
+
+        played_hands = (
+            self.player.won_hands
+            + self.player.lost_hands
+            + self.player.even_hands
+        )
+        print(f"Won hands: {self.player.won_hands/played_hands:,.1%}")
+        print(f"Lost hands: {self.player.lost_hands/played_hands:,.1%}")
+        print(f"Even hands: {self.player.even_hands/played_hands:,.1%}")
+        print("-------------------------------")
+        played_hands = self.player.won_hands + self.player.lost_hands
+        player_ratio = self.player.won_hands / played_hands
+        house_ratio = self.player.lost_hands / played_hands
+        print(f"House edge: {player_ratio:,.1%} : {house_ratio:,.1%}")
+        print("-------------------------------")
+        print("-------------------------------")
+        print("--------------End--------------")
