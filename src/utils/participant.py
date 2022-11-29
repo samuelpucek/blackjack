@@ -24,9 +24,9 @@ class Player(Participant):
         self.bet = 0
         self.min_bet = min_bet
         self.split_count = 0
-        self.won_hands = 0
-        self.lost_hands = 0
-        self.even_hands = 0
+        self.winnings_count = 0
+        self.loosings_count = 0
+        self.draws_count = 0
 
     def reset_played_hands(self) -> None:
         """

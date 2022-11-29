@@ -50,19 +50,19 @@ class Game:
         if players_hand.busted():
             print(" >> Player busted")
             print(f" >> Dealer won [losing ${player.bet:,.0f}]")
-            player.lost_hands += 1
+            player.loosings_count += 1
 
         elif dealers_hand.busted():
             prize = 2 * player.bet
             player.balance += prize
             print(" >> Dealer busted")
             print(f" >> Player won [winning ${prize:,.0f}]")
-            player.won_hands += 1
+            player.winnings_count += 1
 
         elif players_hand.hand_value() == dealers_hand.hand_value():
             player.balance += player.bet
-            print(" >> Even game")
-            player.even_hands += 1
+            print(" >> Draw")
+            player.draws_count += 1
 
         elif (
             players_hand.black_jack() and not players_hand.black_jack_dislabled
@@ -70,7 +70,7 @@ class Game:
             prize = 2.5 * player.bet
             player.balance += prize
             print(f" >> Black Jack 21!!! [winning ${prize:,.0f}]")
-            player.won_hands += 1
+            player.winnings_count += 1
 
         elif players_hand.hand_value() > dealers_hand.hand_value():
             prize = 2 * player.bet
@@ -79,12 +79,12 @@ class Game:
             print(
                 f" >> {player.__class__.__name__} won! [winning ${prize:,.0f}]"
             )
-            player.won_hands += 1
+            player.winnings_count += 1
 
         else:
             print(" >> Dealer higher cards")
             print(f" >> Dealer won [losing ${player.bet:,.0f}]")
-            player.lost_hands += 1
+            player.loosings_count += 1
 
     def _double_down(self, hand: Hand) -> bool:
         dealers_hand: Hand = self.dealer.hands[0]
@@ -226,17 +226,17 @@ class Game:
             self.deck = Deck(decks=6)
 
         played_hands = (
-            self.player.won_hands
-            + self.player.lost_hands
-            + self.player.even_hands
+            self.player.winnings_count
+            + self.player.loosings_count
+            + self.player.draws_count
         )
-        print(f"Won hands: {self.player.won_hands/played_hands:,.1%}")
-        print(f"Lost hands: {self.player.lost_hands/played_hands:,.1%}")
-        print(f"Even hands: {self.player.even_hands/played_hands:,.1%}")
+        print(f"Winnings: {self.player.winnings_count/played_hands:,.1%}")
+        print(f"Loosings: {self.player.loosings_count/played_hands:,.1%}")
+        print(f"Draws: {self.player.draws_count/played_hands:,.1%}")
         print("-------------------------------")
-        played_hands = self.player.won_hands + self.player.lost_hands
-        player_ratio = self.player.won_hands / played_hands
-        house_ratio = self.player.lost_hands / played_hands
+        played_hands = self.player.winnings_count + self.player.loosings_count
+        player_ratio = self.player.winnings_count / played_hands
+        house_ratio = self.player.loosings_count / played_hands
         print(f"Player vs House: {player_ratio:,.1%} : {house_ratio:,.1%}")
         print("-------------------------------")
         print("-------------------------------")
