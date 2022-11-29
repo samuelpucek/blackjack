@@ -208,10 +208,6 @@ class Game:
         else:
             return False
 
-    def _play_new_game(self) -> bool:
-        answer = input("Play new game? Press random key if exit.")
-        return len(answer) == 0
-
     def _print_summary(self) -> None:
         print("-------------------------------")
         print("------------Summary------------")
@@ -241,7 +237,7 @@ class Game:
         played_hands = self.player.won_hands + self.player.lost_hands
         player_ratio = self.player.won_hands / played_hands
         house_ratio = self.player.lost_hands / played_hands
-        print(f"House edge: {player_ratio:,.1%} : {house_ratio:,.1%}")
+        print(f"Player vs House: {player_ratio:,.1%} : {house_ratio:,.1%}")
         print("-------------------------------")
         print("-------------------------------")
         print("--------------End--------------")
