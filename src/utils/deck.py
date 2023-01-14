@@ -7,16 +7,9 @@ class Deck:
         """
         Initialize a new deck of cards and shuffle.
         """
-        self._suits = 4
-        self._ranks = 13
         self._decks = decks
-        self.cards = [
-            Card(suit, rank)
-            for suit in range(self._suits)
-            for rank in range(self._ranks)
-            for _ in range(self._decks)
-        ]
-        self._shuffle()
+        self.cards = self._generate_cards()
+        self._shuffle_deck()
 
     def __len__(self) -> int:
         """
@@ -33,7 +26,19 @@ class Deck:
             deck_written += card.__str__() + " "
         return deck_written.strip()
 
-    def _shuffle(self) -> None:
+    def _generate_cards(self) -> list[Card]:
+        """
+        Generate list of cards.
+        """
+        cards = [
+            Card(suit, rank)
+            for suit in range(len(Card.SUITS))
+            for rank in range(len(Card.RANKS))
+            for _ in range(self._decks)
+        ]
+        return cards
+
+    def _shuffle_deck(self) -> None:
         """
         Shuffle the deck.
         """
