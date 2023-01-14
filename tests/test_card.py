@@ -15,7 +15,7 @@ class TestCard(unittest.TestCase):
         ]
     )
     def test_is_ace_card(self, name: str, card: Card, expected_ace: bool):
-        self.assertEqual(card.is_ace_card(), expected_ace)
+        self.assertEqual(card.is_ace_card, expected_ace)
 
     @parameterized.expand(
         [

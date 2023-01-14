@@ -6,7 +6,7 @@ class Hand:
         """
         Initialize a new hand of cards.
         """
-        self.cards: list(Card) = cards
+        self.cards: list[Card] = cards
         self.black_jack_dislabled = False
 
     def __str__(self, second_card_hidden: bool = False) -> str:
@@ -43,7 +43,7 @@ class Hand:
                         hand_value += card_value - 10
                         soft_hand = False
                 else:
-                    if card.is_ace_card():
+                    if card.is_ace_card:
                         if hand_value + 11 <= 21:
                             hand_value += 11
                             soft_hand = True

@@ -15,7 +15,7 @@ class Game:
         )
         self.deck = Deck(decks=self.DECKS)
         self.game_count = 0
-        self.already_played_cards: list(Card) = []  # TODO: save played cards
+        self.already_played_cards: list[Card] = []  # TODO: save played cards
 
     def _reset_hands(self) -> None:
         self.dealer.new_hand()

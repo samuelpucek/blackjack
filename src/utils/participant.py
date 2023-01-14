@@ -1,13 +1,14 @@
 from .hand import Hand
 
 
+# TODO: try dataclass
 class Participant:
     def __init__(self, name: str) -> None:
         """
         One Participant can have one or multiple hands.
         """
         self.name = name
-        self.hands: list(Hand) = []
+        self.hands: list[Hand] = []
 
     def new_hand(self) -> None:
         """
@@ -19,7 +20,7 @@ class Participant:
 class Player(Participant):
     def __init__(self, name: str, balance: int, min_bet: int) -> None:
         super().__init__(name)
-        self.played_hands: list(Hand) = []
+        self.played_hands: list[Hand] = []
         self.balance = balance
         self.bet = 0
         self.min_bet = min_bet

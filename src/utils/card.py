@@ -16,6 +16,7 @@ class Card:
         """
         return f"{Card.SUITS[self.suit]}{Card.RANKS[self.rank]}"
 
+    @property
     def is_ace_card(self) -> bool:
         """
         Return if the card is Ace card.
@@ -26,7 +27,7 @@ class Card:
         """
         Return value of the card with special care for Ace value 1/11.
         """
-        if self.is_ace_card() and ace_as_one:
+        if self.is_ace_card and ace_as_one:
             return 1
         else:
             return Card.VALUES[self.rank]
