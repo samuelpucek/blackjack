@@ -18,16 +18,15 @@ class Participant:
 
 
 class Player(Participant):
-    def __init__(self, name: str, balance: int, min_bet: int) -> None:
+    def __init__(self, name: str, balance: int) -> None:
         super().__init__(name)
         self.played_hands: list[Hand] = []
         self.balance = balance
-        self.bet = 0
-        self.min_bet = min_bet
-        self.split_count = 0
-        self.winnings_count = 0
-        self.loosings_count = 0
-        self.draws_count = 0
+        self.bet: int = 0
+        self.split_count: int = 0
+        self.winnings_count: int = 0
+        self.loosings_count: int = 0
+        self.draws_count: int = 0
 
     def reset_played_hands(self) -> None:
         """
@@ -35,17 +34,11 @@ class Player(Participant):
         """
         self.played_hands = []
 
-    def _bankrupted(self) -> bool:
-        """
-        Check if the player is bankrupted or not.
-        """
-        return self.balance < self.min_bet
-
     def make_bet(self, bet: int) -> bool:
         """
         Make a new bet if the player has enough balance.
         """
-        if not self._bankrupted():
+        if self.balance > bet:
             print(
                 f" >> {self.__class__.__name__} balance ${self.balance:,.0f}"
             )

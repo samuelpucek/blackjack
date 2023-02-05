@@ -10,9 +10,7 @@ class Game:
 
     def __init__(self) -> None:
         self.dealer = Dealer("Dealer D")
-        self.player = Player(
-            name="Player 1", balance=10000, min_bet=self.MIN_BET
-        )
+        self.player = Player(name="Player 1", balance=500)
         self.deck = Deck(decks=self.DECKS)
         self.game_count = 0
         self.already_played_cards: list[Card] = []  # TODO: save played cards
@@ -30,18 +28,17 @@ class Game:
         """
         Deal the cards at the beginning of the round.
         """
-        players_hand: Hand = self.player.hands[0]
-        dealers_hand: Hand = self.dealer.hands[0]
-
         for _ in range(2):
-            for hand in [players_hand, dealers_hand]:
+            for hand in self.player.hands + self.dealer.hands:
                 self._draw_new_card_from_deck(hand)
 
         print(" >> Deal the cards")
-        dealers_hand.print_hand_and_hand_value(
+        self.dealer.hands[0].print_hand_and_hand_value(
             msg=f"{self.dealer.name}", second_card_hidden=True
         )
-        players_hand.print_hand_and_hand_value(msg=f"{self.player.name}")
+        self.player.hands[0].print_hand_and_hand_value(
+            msg=f"{self.player.name}"
+        )
         print(" >> Go")
 
     def _evaluate_hand(self, player: Player, players_hand: Hand) -> None:
@@ -87,11 +84,10 @@ class Game:
             player.loosings_count += 1
 
     def _double_down(self, hand: Hand) -> bool:
-        dealers_hand: Hand = self.dealer.hands[0]
         if (
             self.player.balance > self.player.bet
             and 6 < hand.hand_value() < 12
-            and dealers_hand.hand_value(second_card_hidden=True) < 7
+            and self.dealer.hands[0].hand_value(second_card_hidden=True) < 7
         ):
             print(f" >> Doubleeee down, betting ${self.player.bet:,.0f}")
             self.player.balance -= self.player.bet
@@ -121,12 +117,9 @@ class Game:
 
             # Aces can be split only once
             if hand.hand_of_double_aces():
-                player.played_hands = [
-                    right_hand,
-                    left_hand,
-                ] + player.played_hands
+                player.played_hands += [right_hand, left_hand]
             else:
-                player.hands = [right_hand, left_hand] + player.hands
+                player.hands += [right_hand, left_hand]
                 player.split_count += 1
             return True
         else:
@@ -162,15 +155,14 @@ class Game:
             player.played_hands.append(hand)
 
     def _dealers_turn(self) -> None:
-        all_hands_busted = True
-        for players_hand in self.player.played_hands:
-            if not players_hand.busted():
-                all_hands_busted = False
-                break
+        all_hands_busted = min(
+            list(map(lambda h: h.busted(), self.player.played_hands))
+        )
 
         if not all_hands_busted:
-            dealers_hand: Hand = self.dealer.hands[0]
-            while dealers_hand.hand_value(second_card_hidden=False) < 17:
+            while (
+                self.dealer.hands[0].hand_value(second_card_hidden=False) < 17
+            ):
                 self._draw_new_card_from_deck(hand=self.dealer.hands[0])
 
     def _new_game(self) -> bool:
@@ -182,8 +174,7 @@ class Game:
             self._players_turn(player=self.player)
             self._dealers_turn()
 
-            dealers_hand: Hand = self.dealer.hands[0]
-            dealers_hand.print_hand_and_hand_value(
+            self.dealer.hands[0].print_hand_and_hand_value(
                 msg=f"{self.dealer.name}", second_card_hidden=False
             )
 
@@ -217,7 +208,7 @@ class Game:
         print("-------------------------------")
 
     def play_game(self):
-        while self.player.balance > self.MIN_BET and self.game_count < 1000:
+        while self.player.balance > self.MIN_BET and self.game_count < 1_000:
             while not self._deck_below_threshold():
                 if not self._new_game():
                     break
