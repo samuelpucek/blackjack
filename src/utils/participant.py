@@ -1,25 +1,10 @@
 from .hand import Hand
 
 
-# TODO: try dataclass
-class Participant:
-    def __init__(self, name: str) -> None:
-        """
-        One Participant can have one or multiple hands.
-        """
+class Player:
+    def __init__(self, name: str, balance: int) -> None:
         self.name = name
         self.hands: list[Hand] = []
-
-    def new_hand(self) -> None:
-        """
-        Initialize a new hand.
-        """
-        self.hands = [Hand(cards=[])]
-
-
-class Player(Participant):
-    def __init__(self, name: str, balance: int) -> None:
-        super().__init__(name)
         self.played_hands: list[Hand] = []
         self.balance = balance
         self.bet: int = 0
@@ -27,6 +12,12 @@ class Player(Participant):
         self.winnings_count: int = 0
         self.loosings_count: int = 0
         self.draws_count: int = 0
+
+    def new_hand(self) -> None:
+        """
+        Initialize a new hand.
+        """
+        self.hands = [Hand(cards=[])]
 
     def reset_played_hands(self) -> None:
         """
@@ -64,5 +55,13 @@ class Player(Participant):
             raise ValueError("Not supported draw new card opperation.")
 
 
-class Dealer(Participant):
-    pass
+class Dealer:
+    def __init__(self, name: str) -> None:
+        self.name = name
+        self.hand = Hand(cards=[])
+
+    def new_hand(self) -> None:
+        """
+        Initialize a new hand.
+        """
+        self.hand = Hand(cards=[])

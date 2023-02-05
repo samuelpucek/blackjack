@@ -29,11 +29,11 @@ class Game:
         Deal the cards at the beginning of the round.
         """
         for _ in range(2):
-            for hand in self.player.hands + self.dealer.hands:
+            for hand in self.player.hands + [self.dealer.hand]:
                 self._draw_new_card_from_deck(hand)
 
         print(" >> Deal the cards")
-        self.dealer.hands[0].print_hand_and_hand_value(
+        self.dealer.hand.print_hand_and_hand_value(
             msg=f"{self.dealer.name}", second_card_hidden=True
         )
         self.player.hands[0].print_hand_and_hand_value(
@@ -42,21 +42,19 @@ class Game:
         print(" >> Go")
 
     def _evaluate_hand(self, player: Player, players_hand: Hand) -> None:
-        dealers_hand: Hand = self.dealer.hands[0]
-
         if players_hand.busted():
             print(" >> Player busted")
             print(f" >> Dealer won [losing ${player.bet:,.0f}]")
             player.loosings_count += 1
 
-        elif dealers_hand.busted():
+        elif self.dealer.hand.busted():
             prize = 2 * player.bet
             player.balance += prize
             print(" >> Dealer busted")
             print(f" >> Player won [winning ${prize:,.0f}]")
             player.winnings_count += 1
 
-        elif players_hand.hand_value() == dealers_hand.hand_value():
+        elif players_hand.hand_value() == self.dealer.hand.hand_value():
             player.balance += player.bet
             print(" >> Draw")
             player.draws_count += 1
@@ -69,7 +67,7 @@ class Game:
             print(f" >> Black Jack 21!!! [winning ${prize:,.0f}]")
             player.winnings_count += 1
 
-        elif players_hand.hand_value() > dealers_hand.hand_value():
+        elif players_hand.hand_value() > self.dealer.hand.hand_value():
             prize = 2 * player.bet
             player.balance += prize
             print(" >> Player higher cards")
@@ -87,7 +85,7 @@ class Game:
         if (
             self.player.balance > self.player.bet
             and 6 < hand.hand_value() < 12
-            and self.dealer.hands[0].hand_value(second_card_hidden=True) < 7
+            and self.dealer.hand.hand_value(second_card_hidden=True) < 7
         ):
             print(f" >> Doubleeee down, betting ${self.player.bet:,.0f}")
             self.player.balance -= self.player.bet
@@ -160,10 +158,8 @@ class Game:
         )
 
         if not all_hands_busted:
-            while (
-                self.dealer.hands[0].hand_value(second_card_hidden=False) < 17
-            ):
-                self._draw_new_card_from_deck(hand=self.dealer.hands[0])
+            while self.dealer.hand.hand_value(second_card_hidden=False) < 17:
+                self._draw_new_card_from_deck(hand=self.dealer.hand)
 
     def _new_game(self) -> bool:
         print("------------NewGame------------")
@@ -174,7 +170,7 @@ class Game:
             self._players_turn(player=self.player)
             self._dealers_turn()
 
-            self.dealer.hands[0].print_hand_and_hand_value(
+            self.dealer.hand.print_hand_and_hand_value(
                 msg=f"{self.dealer.name}", second_card_hidden=False
             )
 
