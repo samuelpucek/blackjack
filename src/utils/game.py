@@ -47,12 +47,16 @@ class Game:
         print(" >> Play <<")
 
     def _evaluate_hand(self, player: Player, players_hand: Hand) -> None:
+        """
+        Evaluate player's hand.
+        """
+        # TODO: Check this method carefully!
+        # What if player doubled down?
+
         players_hand.print_hand_and_hand_value(
             msg=f"Evaluate {self.player.name}"
         )
 
-        # TODO: Check this method carefully!
-        # What if player doubled down?
         if players_hand.busted():
             print(" >> Player busted")
             print(f" >> Dealer won [losing ${player.bet:,.0f}]")
@@ -94,6 +98,10 @@ class Game:
             player.loosings_count += 1
 
     def _double_down(self, player: Player, hand: Hand) -> bool:
+        """
+        Check if double down is good choice.
+        If yes, then double down with player's hand.
+        """
         if (
             self.player.balance > self.player.bet
             and 6 < hand.hand_value() < 12
@@ -113,6 +121,10 @@ class Game:
             return False
 
     def _split_pairs(self, player: Player, hand: Hand) -> bool:
+        """
+        Check if splitting pairs is a good idea.
+        If yes, then split the pairs.
+        """
         if player.balance > player.bet and player.split_count < 3:
             player.make_bet(bet=player.bet)
             print(" >> Split the cards")
@@ -143,6 +155,9 @@ class Game:
             return False
 
     def _players_turn(self, player: Player) -> None:
+        """
+        Player's turn.
+        """
         while player.hands:
             hand: Hand = player.hands.pop(0)
             hand.print_hand_and_hand_value(msg=f"Play {player.name}")
@@ -170,6 +185,9 @@ class Game:
             player.played_hands.append(hand)
 
     def _dealers_turn(self) -> None:
+        """
+        Dealer's turn.
+        """
         all_hands_busted = min(
             list(map(lambda h: h.busted(), self.player.played_hands))
         )
@@ -179,6 +197,9 @@ class Game:
                 self._draw_new_card_from_deck(hand=self.dealer.hand)
 
     def _new_game(self) -> bool:
+        """
+        Play one round of the BlackJack.
+        """
         print("------------NewGame------------")
         if self.player.make_bet(bet=Game.MIN_BET):
             self._reset_hands()
@@ -202,6 +223,9 @@ class Game:
             return False
 
     def _deck_below_threshold(self) -> bool:
+        """
+        Check if there are enough remaining cards in the deck.
+        """
         THRESHOLD = 0.2
         init_deck_cards_count = self.DECKS * 52
         deck_below_threshold = (
@@ -214,6 +238,9 @@ class Game:
             return False
 
     def _print_summary(self) -> None:
+        """
+        Print the game summary.
+        """
         print("-------------------------------")
         print("------------Summary------------")
         print("-------------------------------")
@@ -222,13 +249,16 @@ class Game:
         print("-------------------------------")
 
     def play_game(self):
+        """
+        Play the game until ending conditions are met.
+        """
         while self.player.balance > self.MIN_BET and self.game_count < 1_000:
             while not self._deck_below_threshold():
                 if not self._new_game():
                     break
                 self.game_count += 1
             self._print_summary()
-            self.deck = Deck(decks=6)
+            self.deck = Deck(decks=self.DECKS)
 
         played_hands = (
             self.player.winnings_count
