@@ -9,8 +9,8 @@ class Game:
     DECKS = 6
 
     def __init__(self) -> None:
-        self.dealer = Dealer("Dealer D")
-        self.player = Player(name="Player 1", balance=500)
+        self.dealer = Dealer("Dealer")
+        self.player = Player(name="Player 1", balance=1_000)
         self.deck = Deck(decks=self.DECKS)
         self.game_count = 0
         self.already_played_cards: list[Card] = []  # TODO: save played cards
@@ -22,6 +22,9 @@ class Game:
         self.player.split_count = 0
 
     def _draw_new_card_from_deck(self, hand: Hand) -> None:
+        """
+        Draw new card from the deck and stick it in the hand.
+        """
         hand.cards.append(self.deck.cards.pop())
 
     def _deal_the_cards(self) -> None:
@@ -33,15 +36,23 @@ class Game:
                 self._draw_new_card_from_deck(hand)
 
         print(" >> Deal the cards")
+
         self.dealer.hand.print_hand_and_hand_value(
             msg=f"{self.dealer.name}", second_card_hidden=True
         )
-        self.player.hands[0].print_hand_and_hand_value(
-            msg=f"{self.player.name}"
-        )
-        print(" >> Go")
+
+        for players_hand in self.player.hands:
+            players_hand.print_hand_and_hand_value(msg=f"{self.player.name}")
+
+        print(" >> Play <<")
 
     def _evaluate_hand(self, player: Player, players_hand: Hand) -> None:
+        players_hand.print_hand_and_hand_value(
+            msg=f"Evaluate {self.player.name}"
+        )
+
+        # TODO: Check this method carefully!
+        # What if player doubled down?
         if players_hand.busted():
             print(" >> Player busted")
             print(f" >> Dealer won [losing ${player.bet:,.0f}]")
@@ -62,6 +73,7 @@ class Game:
         elif (
             players_hand.black_jack() and not players_hand.black_jack_dislabled
         ):
+            # TODO: BlackJack payout won't work if the dealer busted (step 2)
             prize = 2.5 * player.bet
             player.balance += prize
             print(f" >> Black Jack 21!!! [winning ${prize:,.0f}]")
@@ -81,7 +93,7 @@ class Game:
             print(f" >> Dealer won [losing ${player.bet:,.0f}]")
             player.loosings_count += 1
 
-    def _double_down(self, hand: Hand) -> bool:
+    def _double_down(self, player: Player, hand: Hand) -> bool:
         if (
             self.player.balance > self.player.bet
             and 6 < hand.hand_value() < 12
@@ -90,7 +102,12 @@ class Game:
             print(f" >> Doubleeee down, betting ${self.player.bet:,.0f}")
             self.player.balance -= self.player.bet
             self.player.bet += self.player.bet
+            # TODO: What if you change global self.player.bet value?
+            # There will be conflict if you split and then double
+            # one of two hands.
             self._draw_new_card_from_deck(hand)  # draw only one new card
+            hand.print_hand_and_hand_value(msg=f"{player.name}")
+            player.played_hands.append(hand)
             return True
         else:
             return False
@@ -113,7 +130,7 @@ class Game:
                 if new_hand.black_jack():
                     new_hand.black_jack_dislabled = True
 
-            # Aces can be split only once
+            # Aces can be split only once with one drawn card only
             if hand.hand_of_double_aces():
                 player.played_hands += [right_hand, left_hand]
             else:
@@ -128,8 +145,9 @@ class Game:
     def _players_turn(self, player: Player) -> None:
         while player.hands:
             hand: Hand = player.hands.pop(0)
-            hand.print_hand_and_hand_value(msg=f"{player.name}")
+            hand.print_hand_and_hand_value(msg=f"Play {player.name}")
 
+            # TODO: Refactor this waterfall if-else
             # split the pairs
             if hand.hand_of_pairs():
                 if self._split_pairs(player, hand):
@@ -138,12 +156,11 @@ class Game:
                     pass  # continue as standard hand
 
             # double down
-            if self._double_down(hand):
-                hand.print_hand_and_hand_value(msg=f"{player.name}")
-                player.played_hands.append(hand)
+            if self._double_down(player, hand):
                 continue  # exit
 
             # standard hand
+            # TODO: pack this code into a method _standard_hand()
             while hand.hand_value() < 21 and player.draw_new_card(
                 mode="auto primitive", hand=hand
             ):
@@ -174,6 +191,7 @@ class Game:
                 msg=f"{self.dealer.name}", second_card_hidden=False
             )
 
+            print(" >> Evaluate <<")
             for players_hand in self.player.played_hands:
                 self._evaluate_hand(
                     player=self.player, players_hand=players_hand

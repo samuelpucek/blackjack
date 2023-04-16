@@ -2,4 +2,7 @@ venv
 **/__pycache__
 .vscode
 .DS_Store
+
 *.pdf
+*.txt
+documents

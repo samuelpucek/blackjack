@@ -15,7 +15,7 @@ class Player:
 
     def new_hand(self) -> None:
         """
-        Initialize a new hand.
+        Initialize a new empty hand.
         """
         self.hands = [Hand(cards=[])]
 
@@ -62,6 +62,6 @@ class Dealer:
 
     def new_hand(self) -> None:
         """
-        Initialize a new hand.
+        Initialize a new empty hand.
         """
         self.hand = Hand(cards=[])

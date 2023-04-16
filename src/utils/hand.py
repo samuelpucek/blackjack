@@ -77,18 +77,17 @@ class Hand:
 
     def hand_of_pairs(self) -> bool:
         """
-        Check if the hand is a hand of pairs or not e.g., 5s.
+        Check if the hand is a hand of pairs or not e.g., two 5s.
         """
-        if len(self.cards) == 2:
-            return self.cards[0].rank == self.cards[1].rank
-        else:
-            return False
+        return (
+            len(self.cards) == 2 and self.cards[0].rank == self.cards[1].rank
+        )
 
     def hand_of_double_aces(self) -> bool:
         """
-        Check if the hand is a hand of double aces or not i.e., A A.
+        Check if the hand is a hand of double aces or not i.e., two As.
         """
-        if len(self.cards) == 2:
-            return self.cards[0].rank == self.cards[1].rank == 12
-        else:
-            return False
+        return (
+            len(self.cards) == 2
+            and self.cards[0].rank == self.cards[1].rank == 12
+        )

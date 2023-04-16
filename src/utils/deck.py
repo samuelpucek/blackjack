@@ -42,4 +42,5 @@ class Deck:
         """
         Shuffle the deck.
         """
+        random.seed(123)
         random.shuffle(self.cards)

@@ -118,6 +118,7 @@ class TestHand(unittest.TestCase):
         [
             ("2", [Card(0, 0)], False),
             ("2 A", [Card(0, 0), Card(0, 12)], False),
+            ("2 2 2", [Card(0, 0), Card(0, 0), Card(0, 0)], False),
             ("2 A 3", [Card(0, 0), Card(0, 12), Card(0, 1)], False),
             ("K A A", [Card(0, 11), Card(0, 12), Card(0, 12)], False),
             ("A Q", [Card(3, 12), Card(2, 10)], False),
