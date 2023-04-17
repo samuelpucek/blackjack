@@ -125,7 +125,9 @@ class Game:
         Check if splitting pairs is a good idea.
         If yes, then split the pairs.
         """
-        if player.balance > player.bet and player.split_count < 3:
+        if not hand.hand_of_pairs():
+            return False
+        elif player.balance > player.bet and player.split_count < 3:
             player.make_bet(bet=player.bet)
             print(" >> Split the cards")
 
@@ -154,33 +156,32 @@ class Game:
             print(" >> Max split count 3 times per hand")
             return False
 
+    def _standard_hand(self, player: Player, hand: Hand) -> None:
+        """
+        Play standard hand.
+        Hit the card if the hand value is less than 17, stay otherwise.
+        """
+        while hand.hand_value() < 17:
+            self._draw_new_card_from_deck(hand)
+            hand.print_hand_and_hand_value(msg=f"{player.name}")
+
+        player.played_hands.append(hand)
+
     def _players_turn(self, player: Player) -> None:
         """
-        Player's turn.
+        Simulates player's turn using hardcoded conditions.
+        Supports splitting cards, double down and standard hand.
         """
         while player.hands:
             hand: Hand = player.hands.pop(0)
             hand.print_hand_and_hand_value(msg=f"Play {player.name}")
 
-            # TODO: Refactor this waterfall if-else
-            # split the pairs
-            if hand.hand_of_pairs():
-                if self._split_pairs(player, hand):
-                    continue  # exit
-                else:
-                    pass  # continue as standard hand
-
-            # double down
-            if self._double_down(player, hand):
+            if self._split_pairs(player, hand):  # split the pairs
                 continue  # exit
-
-            # standard hand
-            # TODO: pack this code into a method _standard_hand()
-            while hand.hand_value() < 17:
-                self._draw_new_card_from_deck(hand)
-                hand.print_hand_and_hand_value(msg=f"{player.name}")
-
-            player.played_hands.append(hand)
+            elif self._double_down(player, hand):  # double down
+                continue  # exit
+            else:
+                self._standard_hand(player, hand)  # standard hand
 
     def _dealers_turn(self) -> None:
         """
