@@ -176,9 +176,7 @@ class Game:
 
             # standard hand
             # TODO: pack this code into a method _standard_hand()
-            while hand.hand_value() < 21 and player.draw_new_card(
-                mode="auto primitive", hand=hand
-            ):
+            while hand.hand_value() < 17:
                 self._draw_new_card_from_deck(hand)
                 hand.print_hand_and_hand_value(msg=f"{player.name}")
 
@@ -276,3 +274,8 @@ class Game:
         print("-------------------------------")
         print("-------------------------------")
         print("--------------End--------------")
+
+        # Additional checks
+        assert self.game_count == 1012
+        assert self.player.balance == 885
+        assert self.player.winnings_count == 483

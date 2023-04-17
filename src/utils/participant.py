@@ -42,18 +42,6 @@ class Player:
             print(f" >> Remaining balance ${self.balance:,.0f}")
             return False
 
-    def draw_new_card(self, mode: str, hand: Hand) -> bool:
-        """
-        Return if the player should draw a new card or not.
-        """
-        if mode == "auto primitive":
-            return hand.hand_value() < 17
-        elif mode == "human":
-            players_input = input("Next card?")
-            return len(players_input) == 0
-        else:
-            raise ValueError("Not supported draw new card opperation.")
-
 
 class Dealer:
     def __init__(self, name: str) -> None:
