@@ -7,14 +7,22 @@ class Card:
         """
         Initialize a new playing card.
         """
-        self.suit = suit
-        self.rank = rank
+        self._suit = suit
+        self._rank = rank
 
     def __str__(self) -> str:
         """
         Print the card in a nice way.
         """
         return f"{Card.SUITS[self.suit]}{Card.RANKS[self.rank]}"
+
+    @property
+    def suit(self) -> int:
+        return self._suit
+
+    @property
+    def rank(self) -> int:
+        return self._rank
 
     @property
     def is_ace_card(self) -> bool:
