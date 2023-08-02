@@ -113,6 +113,9 @@ class Game:
             # TODO: What if you change global self.player.bet value?
             # There will be conflict if you split and then double
             # one of two hands.
+            # Every Player's hand sould have the attribute "bet".
+            # Create hand._bet variable and define
+            # @property bet() to manage it.
             self._draw_new_card_from_deck(hand)  # draw only one new card
             hand.print_hand_and_hand_value(msg=f"{player.name}")
             player.played_hands.append(hand)
